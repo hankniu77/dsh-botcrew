@@ -7,6 +7,7 @@
   <p>
     <a href="https://dshmarket.com"><img alt="DSH" src="https://img.shields.io/badge/DSH-0.2.1%2B-6a4df0"></a>
     <a href="https://github.com/hankniu77/dsh-botcrew/releases"><img alt="release" src="https://img.shields.io/github/v/release/hankniu77/dsh-botcrew?color=2f7cf6"></a>
+    <a href="https://github.com/hankniu77/dsh-botcrew/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/hankniu77/dsh-botcrew/actions/workflows/ci.yml/badge.svg"></a>
     <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-MIT-2f7cf6"></a>
     <img alt="platform" src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS-6a4df0">
   </p>
