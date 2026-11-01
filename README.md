@@ -8,7 +8,7 @@
     <a href="https://dshmarket.com"><img alt="DSH" src="https://img.shields.io/badge/DSH-0.2.1%2B-6a4df0"></a>
     <a href="https://github.com/hankniu77/dsh-botcrew/releases"><img alt="release" src="https://img.shields.io/github/v/release/hankniu77/dsh-botcrew?color=2f7cf6"></a>
     <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-MIT-2f7cf6"></a>
-    <img alt="platform" src="https://img.shields.io/badge/platform-Windows-6a4df0">
+    <img alt="platform" src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS-6a4df0">
   </p>
 </div>
 
@@ -16,7 +16,7 @@
 
 **BotCrew** turns **WorkBuddy** and **千问办公** into members of one DSH group chat. You write one instruction, `@WorkBuddy` extracts the source material, `@千问办公` re-lays it out, and a reviewer checks the result — while a live panel shows both desks.
 
-It is **local-first**: no cloud sandbox, no API keys for the office apps, no screen streaming. It drives the apps already signed in on your PC through Chromium DevTools Protocol, and exposes the same operations as `mcp__office__*` tools.
+It is **local-first**: no cloud sandbox, no API keys for the office apps, no screen streaming. It drives the apps already signed in on your Mac or PC through Chromium DevTools Protocol, and exposes the same operations as `mcp__office__*` tools.
 
 ---
 
@@ -46,6 +46,28 @@ BotCrew connects those pieces:
 | 📊 **Live work panel** | Side-by-side WorkBuddy and 千问 screenshots, current task, queue, artifacts. |
 | 🔌 **MCP-native** | Every chat action is also a tool: `office_send`, `office_wait`, `office_artifacts`… |
 | 🔒 **Local-only** | Panel binds `127.0.0.1`; no account passwords are stored. |
+
+---
+
+## Requirements
+
+| | |
+|---|---|
+| **Windows 10/11 or macOS 13+** | Desktop automation is implemented for both platforms. |
+| **DSH Desktop 0.2.1+** | Plugin host and Web UI. |
+| **WorkBuddy 5.x** | Installed and signed in. |
+| **QwenWork 1.4+** | Installed and signed in; `qoderclicn` available for CLI tasks. |
+| **Node.js 22+** | The DSH bundled runtime is enough. |
+
+The first-run setup finds the apps automatically on both platforms. Typical paths:
+
+```text
+Windows:  C:/Users/<you>/AppData/Local/Programs/WorkBuddy/WorkBuddy.exe
+macOS:    /Applications/WorkBuddy.app/Contents/MacOS/WorkBuddy
+
+Windows:  .../QwenWorkCN/<version>/resources/bin/qoderclicn.exe
+macOS:    /Applications/QwenWorkCN.app/Contents/Resources/bin/qoderclicn
+```
 
 ---
 
@@ -218,9 +240,9 @@ Default config lives in the package (`config.json`); user overrides go to:
 |---|---|
 | `port` | WorkBuddy CDP port, default `9331`. |
 | `panelPort` | Local panel port, default `8765`. |
-| `workbuddyExe` | Path to `WorkBuddy.exe`; auto-detected if omitted. |
-| `qwen.exe` | Path to `QwenWorkCN.exe`; auto-detected. |
-| `qwen.cli` | Path to `qoderclicn.exe`; auto-detected. |
+| `workbuddyExe` | Path to the WorkBuddy executable; auto-detected on Windows and macOS. |
+| `qwen.exe` | Path to the QwenWork executable; auto-detected on Windows and macOS. |
+| `qwen.cli` | Path to `qoderclicn` (`.exe` on Windows); auto-detected. |
 | `qwen.gitBashPath` | Git Bash used by the qwen CLI on Windows. |
 | `home` | Data directory, default `~/.dsh/botcrew/data`. |
 
@@ -256,6 +278,7 @@ See [SECURITY.md](SECURITY.md) for the full threat model.
 ## Roadmap
 
 - [ ] WeCom / WeChat gateway: send instructions from a real chat.
+- [x] macOS support: app paths, process detection, launch/restart and browser login.
 - [ ] Hard permission isolation for WorkBuddy / 千问.
 - [ ] Parallel task scheduling across members.
 - [ ] macOS adapters.

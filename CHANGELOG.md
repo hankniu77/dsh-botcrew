@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2
+
+- macOS support: app paths under `/Applications`, process detection with `pgrep`, launch/restart with `pkill`, and `open` for browser login.
+- Cross-platform config auto-detection for WorkBuddy and QwenWork on Windows and macOS.
+- README requirements and setup paths updated for both platforms.
+
 ## 0.1.1
 
 - Renamed the project from Office Bus to **BotCrew**.

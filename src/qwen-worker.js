@@ -15,7 +15,7 @@ export function qwenCli(cfg) {
 export async function qwenStatus(cfg) {
   const cli = qwenCli(cfg);
   if (!cli || !fs.existsSync(cli)) {
-    return { installed: false, cli, logged_in: false, hint: '找不到 qoderclicn.exe，检查 config.qwen.cli' };
+    return { installed: false, cli, logged_in: false, hint: '找不到 qoderclicn，检查 config.qwen.cli' };
   }
   const result = await runOnce(cli, ['--list-models'], { timeoutMs: 30000 });
   const out = clean(`${result.stdout}\n${result.stderr}`);
@@ -26,7 +26,7 @@ export async function qwenStatus(cfg) {
     logged_in: Boolean(loggedIn && result.code === 0),
     exit_code: result.code,
     output: out.slice(0, 2000),
-    hint: loggedIn ? '' : '先运行一次 qoderclicn.exe login 完成账号登录'
+    hint: loggedIn ? '' : '先运行一次 qoderclicn login 完成账号登录'
   };
 }
 
@@ -70,12 +70,12 @@ function runOnce(cli, args, { cwd, timeoutMs = 60000, env, onSpawn } = {}) {
 
 export async function qwenRun(cfg, { prompt, cwd = '', timeoutMs = 0, model = '', permissionMode = 'auto', onSpawn } = {}) {
   const cli = qwenCli(cfg);
-  if (!cli || !fs.existsSync(cli)) throw new Error('找不到 qoderclicn.exe，检查 config.qwen.cli');
+  if (!cli || !fs.existsSync(cli)) throw new Error('找不到 qoderclicn，检查 config.qwen.cli');
   if (!prompt || !prompt.trim()) throw new Error('prompt 不能为空');
 
   const status = await qwenStatus(cfg);
   if (!status.logged_in) {
-    throw new Error('qoderclicn 未登录：先在终端运行一次 qoderclicn.exe login，再调用 qwen_run');
+    throw new Error('qoderclicn 未登录：先在终端运行一次 qoderclicn login，再调用 qwen_run');
   }
 
   const workdir = cwd || (cfg.qwen && cfg.qwen.cwd) || '';

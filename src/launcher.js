@@ -8,6 +8,8 @@ import { isPortUp } from './cdp.js';
 import { loadConfig } from './config.js';
 
 const execFileAsync = promisify(execFile);
+const isMac = process.platform === 'darwin';
+const isWin = process.platform === 'win32';
 
 function systemExe(name) {
   const root = process.env.SystemRoot || 'C:\\Windows';
@@ -15,24 +17,54 @@ function systemExe(name) {
   return fs.existsSync(full) ? full : name;
 }
 
+function processNames(name) {
+  const base = path.basename(String(name || '')).replace(/\.exe$/i, '');
+  const names = [base];
+  if (base === 'QwenWorkCN') names.push('QwenWork');
+  return names.filter(Boolean);
+}
+
 export async function isProcessRunning(imageName) {
+  if (isMac) {
+    for (const name of processNames(imageName)) {
+      try {
+        await execFileAsync('pgrep', ['-x', name]);
+        return true;
+      } catch {
+        /* try the next alias */
+      }
+    }
+    return false;
+  }
   try {
+    const base = processNames(imageName)[0];
     const { stdout } = await execFileAsync(systemExe('tasklist.exe'), [
       '/FI',
-      `IMAGENAME eq ${imageName}`,
+      `IMAGENAME eq ${base}.exe`,
       '/FO',
       'CSV',
       '/NH'
     ]);
-    return stdout.includes(imageName);
+    return stdout.includes(`${base}.exe`);
   } catch {
     return false;
   }
 }
 
 async function killProcess(imageName) {
+  if (isMac) {
+    for (const name of processNames(imageName)) {
+      try {
+        await execFileAsync('pkill', ['-x', name]);
+      } catch {
+        /* process may already be gone */
+      }
+    }
+    return;
+  }
+  const base = processNames(imageName)[0];
   try {
-    await execFileAsync(systemExe('taskkill.exe'), ['/IM', imageName, '/F']);
+    await execFileAsync(systemExe('taskkill.exe'), ['/IM', `${base}.exe`, '/F']);
   } catch {
     /* 进程可能已退出 */
   }
@@ -45,10 +77,10 @@ export async function ensureWorkBuddy(cfg, { restart = false, timeoutSec = 45 } 
   }
 
   if (!fs.existsSync(cfg.workbuddyExe)) {
-    throw new Error(`找不到 WorkBuddy.exe：${cfg.workbuddyExe}（请在 config.json 修正 workbuddyExe）`);
+    throw new Error(`找不到 WorkBuddy：${cfg.workbuddyExe}（请在 config.json 修正 workbuddyExe）`);
   }
 
-  const running = await isProcessRunning('WorkBuddy.exe');
+  const running = await isProcessRunning('WorkBuddy');
   if (running && !restart && !portUp) {
     throw new Error(
       'WorkBuddy 已经在运行，但没有开调试端口。请先完全退出 WorkBuddy，再运行 launcher；或加 --restart 让 launcher 强制重启（未保存的任务会丢）。'
@@ -56,7 +88,7 @@ export async function ensureWorkBuddy(cfg, { restart = false, timeoutSec = 45 } 
   }
 
   if (running && restart) {
-    await killProcess('WorkBuddy.exe');
+    await killProcess('WorkBuddy');
     await delay(2500);
   }
 
@@ -105,16 +137,16 @@ export async function ensureQwenWork(cfg, { restart = false, timeoutSec = 45 } =
   }
 
   if (!exe || !fs.existsSync(exe)) {
-    throw new Error(`找不到 QwenWorkCN.exe：${exe || '(未配置)'}（请在 config.json 修正 qwen.exe）`);
+    throw new Error(`找不到 QwenWork：${exe || '(未配置)'}（请在 config.json 修正 qwen.exe）`);
   }
 
-  const running = await isProcessRunning('QwenWorkCN.exe');
+  const running = await isProcessRunning('QwenWorkCN');
   if (running && !restart && !portUp) {
     throw new Error('千问办公已经在运行，但没有开调试端口。需要完全退出后重开，或允许重启（未保存的任务会丢）。');
   }
 
   if (running && restart) {
-    await killProcess('QwenWorkCN.exe');
+    await killProcess('QwenWorkCN');
     await delay(3000);
   }
 

@@ -184,7 +184,7 @@ async function loginStatus(force = false) {
   }
   if (!force && loginCache.data && Date.now() - loginCache.at < 60000) return loginCache.data;
   if (!cfg.qwen || !cfg.qwen.cli || !fs.existsSync(cfg.qwen.cli)) {
-    const data = { logged_in: false, pending: false, status: 'missing', url: '', error: '找不到 qoderclicn.exe', hint: '安装千问办公后重试' };
+    const data = { logged_in: false, pending: false, status: 'missing', url: '', error: '找不到 qoderclicn', hint: '安装千问办公后重试' };
     loginCache = { at: Date.now(), data };
     return data;
   }
@@ -215,8 +215,8 @@ async function setupStatus() {
   const [wbPort, qPort, wbRunning, qRunning, login] = await Promise.all([
     isPortUp(cfg.port),
     isPortUp(qwenPort),
-    isProcessRunning('WorkBuddy.exe'),
-    isProcessRunning('QwenWorkCN.exe'),
+    isProcessRunning('WorkBuddy'),
+    isProcessRunning('QwenWorkCN'),
     loginStatus()
   ]);
   return {

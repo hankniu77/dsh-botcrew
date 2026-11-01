@@ -20,7 +20,11 @@ export function qwenLoginState() {
 function openBrowser(url) {
   if (!url) return;
   try {
-    const p = spawn('rundll32.exe', ['url.dll,FileProtocolHandler', url], {
+    const isMac = process.platform === 'darwin';
+    const isWin = process.platform === 'win32';
+    const command = isMac ? 'open' : isWin ? 'rundll32.exe' : 'xdg-open';
+    const args = isMac ? [url] : isWin ? ['url.dll,FileProtocolHandler', url] : [url];
+    const p = spawn(command, args, {
       detached: true,
       stdio: 'ignore',
       windowsHide: true
@@ -35,7 +39,7 @@ export function startQwenLogin(cfg) {
   if (state.running) return qwenLoginState();
   const cli = cfg.qwen && cfg.qwen.cli;
   if (!cli || !fs.existsSync(cli)) {
-    state = { running: false, status: 'failed', url: '', error: '找不到 qoderclicn.exe', startedAt: Date.now(), finishedAt: Date.now() };
+    state = { running: false, status: 'failed', url: '', error: '找不到 qoderclicn', startedAt: Date.now(), finishedAt: Date.now() };
     return qwenLoginState();
   }
 

@@ -16,7 +16,7 @@ add('port', cfg.port);
 add('workbuddyExe', `${cfg.workbuddyExe} ${fs.existsSync(cfg.workbuddyExe) ? '(exists)' : '(MISSING)'}`);
 add('home', `${cfg.home} ${fs.existsSync(cfg.home) ? '(exists)' : '(missing)'}`);
 add('artifactsDir', `${cfg.artifactsDir} ${fs.existsSync(cfg.artifactsDir) ? '(exists)' : '(missing)'}`);
-add('workbuddyProcess', (await isProcessRunning('WorkBuddy.exe')) ? 'running' : 'not running');
+add('workbuddyProcess', (await isProcessRunning('WorkBuddy')) ? 'running' : 'not running');
 add('debugPort', (await isPortUp(cfg.port)) ? `open (http://127.0.0.1:${cfg.port})` : 'closed');
 
 const storeFile = path.join(cfg.home, 'store.json');

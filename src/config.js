@@ -6,6 +6,9 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.resolve(__dirname, '..');
 
+const isMac = process.platform === 'darwin';
+const isWin = process.platform === 'win32';
+
 function firstExisting(candidates) {
   for (const candidate of candidates) {
     if (candidate && fs.existsSync(candidate)) return candidate;
@@ -13,7 +16,32 @@ function firstExisting(candidates) {
   return '';
 }
 
+function findNamed(root, name, depth = 5) {
+  if (depth < 0) return '';
+  try {
+    for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
+      const full = path.join(root, entry.name);
+      if (entry.isFile() && entry.name === name) return full;
+      if (entry.isDirectory()) {
+        const nested = findNamed(full, name, depth - 1);
+        if (nested) return nested;
+      }
+    }
+  } catch {
+    /* unreadable or missing */
+  }
+  return '';
+}
+
 function findWorkBuddy() {
+  if (isMac) {
+    return (
+      firstExisting([
+        '/Applications/WorkBuddy.app/Contents/MacOS/WorkBuddy',
+        path.join(os.homedir(), 'Applications', 'WorkBuddy.app', 'Contents', 'MacOS', 'WorkBuddy')
+      ]) || 'WorkBuddy'
+    );
+  }
   const local = process.env.LOCALAPPDATA || '';
   return (
     firstExisting([
@@ -25,6 +53,20 @@ function findWorkBuddy() {
 }
 
 function findQwenCli() {
+  if (isMac) {
+    return (
+      firstExisting([
+        '/Applications/QwenWorkCN.app/Contents/Resources/bin/qoderclicn',
+        '/Applications/QwenWork.app/Contents/Resources/bin/qoderclicn',
+        path.join(os.homedir(), 'Applications', 'QwenWorkCN.app', 'Contents', 'Resources', 'bin', 'qoderclicn'),
+        path.join(os.homedir(), 'Applications', 'QwenWork.app', 'Contents', 'Resources', 'bin', 'qoderclicn'),
+        '/usr/local/bin/qoderclicn',
+        '/opt/homebrew/bin/qoderclicn'
+      ]) ||
+      findNamed('/Applications/QwenWorkCN.app/Contents', 'qoderclicn') ||
+      findNamed('/Applications/QwenWork.app/Contents', 'qoderclicn')
+    );
+  }
   const roots = [
     path.join(process.env.LOCALAPPDATA || '', 'Programs', 'QwenWorkCN'),
     'C:/Program Files/QwenWorkCN',
@@ -47,12 +89,21 @@ function findQwenCli() {
 }
 
 function findQwenExe(cli) {
+  if (isMac) {
+    return firstExisting([
+      '/Applications/QwenWorkCN.app/Contents/MacOS/QwenWorkCN',
+      '/Applications/QwenWork.app/Contents/MacOS/QwenWork',
+      path.join(os.homedir(), 'Applications', 'QwenWorkCN.app', 'Contents', 'MacOS', 'QwenWorkCN'),
+      path.join(os.homedir(), 'Applications', 'QwenWork.app', 'Contents', 'MacOS', 'QwenWork')
+    ]);
+  }
   if (!cli) return '';
   const exe = path.resolve(path.dirname(cli), '..', '..', 'QwenWorkCN.exe');
   return fs.existsSync(exe) ? exe : '';
 }
 
 function findGitBash() {
+  if (!isWin) return '';
   const local = process.env.LOCALAPPDATA || '';
   return firstExisting([
     'C:/Program Files/Git/usr/bin/bash.exe',
