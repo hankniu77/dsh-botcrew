@@ -1,0 +1,62 @@
+{
+  "name": "dsh-office-bus",
+  "version": "0.1.0",
+  "description": "Office Bus — drive WorkBuddy and QwenWork office assistants from one DSH group chat, with handoff, approvals, artifacts and a right-side work panel.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "assets",
+    "src",
+    "group-chat.html",
+    "config.json",
+    "cordis.patch.yml",
+    "locale",
+    "icon.svg",
+    "README.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "dsh-plugin",
+    "deepseek",
+    "harness",
+    "workbuddy",
+    "qwen",
+    "office",
+    "agent",
+    "group-chat",
+    "mcp"
+  ],
+  "license": "MIT",
+  "author": "Office Bus contributors",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "icon": "icon.svg",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-sidebar-right"
+      ]
+    }
+  }
+}

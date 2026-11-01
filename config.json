@@ -1,0 +1,17 @@
+{
+  "port": 9331,
+  "panelPort": 8765,
+  "selectors": {
+    "threadItem": ".conversation-agent-card",
+    "composer": "[contenteditable=\"true\"], textarea, [role=\"textbox\"]",
+    "assistant": ".cr-markdown",
+    "title": ".workbuddy-topbar-title",
+    "button": "button, [role=\"button\"]"
+  },
+  "timing": {
+    "pollMs": 2000,
+    "stablePolls": 12,
+    "maxWaitSec": 5400,
+    "connectTimeoutMs": 10000
+  }
+}

@@ -1,0 +1,1317 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>对话群聊</title>
+<style>
+  :root{
+    --bg:#f7f5f0;--card:#fff;--line:#e6e1d7;--text:#1f1d1a;--muted:#8d867a;
+    --purple:#6a4df0;--blue:#2f7cf6;--orange:#ef7a2e;--green:#2f9e6f;--amber:#b7791f;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;color:var(--text);display:flex;flex-direction:column;height:100%;overflow:hidden}
+  .head{height:64px;flex:0 0 64px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 24px;background:rgba(250,248,244,.92);backdrop-filter:blur(8px);position:relative}
+  .stack{display:flex}
+  .av{width:30px;height:30px;border-radius:50%;position:relative;flex:0 0 auto;background:#ccc;border:2px solid var(--bg)}
+  .av:before,.av:after{content:"";position:absolute;top:10px;width:6px;height:6px;border-radius:50%;background:#fff}
+  .av:before{left:7px}.av:after{right:7px}
+  .stack .av{margin-left:-8px}.stack .av:first-child{margin-left:0}
+  .chief{background:linear-gradient(145deg,#8a74ff,#6a4df0)}
+  .work{background:linear-gradient(145deg,#4d95ff,#1f6be0)}
+  .qwen{background:linear-gradient(145deg,#ffa45c,#ef7425)}
+  .review{background:linear-gradient(145deg,#4cc08a,#239463)}
+  .title{font-size:15px;font-weight:650}
+  .sub{font-size:11px;color:var(--muted);margin-top:2px;max-width:380px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .actions{margin-left:auto;display:flex;gap:8px;align-items:center;position:relative}
+  .btn{height:30px;padding:0 11px;border-radius:9px;border:1px solid var(--line);background:#fff;color:#5f5a51;font-size:12px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-family:inherit}
+  .btn.primary{background:#1f1e1b;border-color:#1f1e1b;color:#fff}
+  .menu{position:absolute;top:36px;right:0;min-width:230px;max-height:320px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 30px rgba(35,28,18,.14);padding:5px;z-index:20}
+  .menuItem{display:block;width:100%;text-align:left;border:0;background:transparent;padding:8px 10px;border-radius:8px;font:12px inherit;color:#3c3933;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .menuItem:hover{background:#f4f1eb}
+  .menuItem.on{background:#ece7de;font-weight:650}
+  .menuItem.add{color:#6a4df0;border-top:1px solid #f0ece4;margin-top:3px}
+  .menu.mode{min-width:120px;right:0;top:auto;bottom:34px}
+  .transcript{flex:1;min-height:0;overflow:auto;padding:18px 24px 8px}
+  .inner{max-width:920px;margin:0 auto}
+  .day{text-align:center;font-size:10.5px;color:#b0aa9f;margin:8px 0 2px}
+  .msg{display:flex;gap:10px;margin:10px 0;max-width:92%}
+  .msg .name{font-size:11.5px;font-weight:650;margin:0 0 5px 2px;display:flex;align-items:center;gap:7px}
+  .msg .role{font-weight:500;color:#a19a8e;font-size:10.5px}
+  .bubble{background:var(--card);border:1px solid #ece7dd;border-radius:14px;padding:11px 14px;font-size:13px;line-height:1.62;box-shadow:0 1px 0 rgba(0,0,0,.02);white-space:pre-wrap}
+  .msg.user{justify-content:flex-end;margin-left:auto;max-width:78%}
+  .msg.user .bubble{background:#201f1c;color:#f6f3ec;border-color:#201f1c}
+  .msg.user .name{justify-content:flex-end;color:#8c867b}
+  .status{display:flex;align-items:center;gap:7px;font-size:10.5px;color:#8d877c;margin:7px 2px 0}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(47,158,111,.12)}
+  .dot.run{background:var(--blue);box-shadow:0 0 0 3px rgba(47,124,246,.14)}
+  .dot.wait{background:var(--amber);box-shadow:0 0 0 3px rgba(183,121,31,.14)}
+  .progress{height:4px;border-radius:99px;background:#eeeae3;margin-top:9px;overflow:hidden}
+  .progress i{display:block;height:100%;width:62%;background:linear-gradient(90deg,#4d95ff,#7b61ff);border-radius:99px}
+  .handoff{margin:10px 0 10px 42px;border:1px dashed #d9d2c5;background:#faf7f0;border-radius:12px;padding:9px 12px;font-size:11.5px;color:#6b655a;display:flex;gap:9px;max-width:86%}
+  .handoff .arrow{color:#b08a4a;font-weight:700;margin-top:1px}
+  .handoff b{color:#3b362d}
+  .artifact{display:flex;align-items:center;gap:10px;border:1px solid #e9e4da;background:#fff;border-radius:12px;padding:8px 10px;margin-top:9px;max-width:330px}
+  .artifact .file{width:31px;height:31px;border-radius:8px;background:#eef3ff;color:#2f6fe0;display:grid;place-items:center;font-size:10px;font-weight:700}
+  .artifact .nm{font-size:11.5px;font-weight:600}
+  .artifact .mt{font-size:10.5px;color:#9c9589;margin-top:2px}
+  .artifact .open{margin-left:auto;font-size:10.5px;color:#2f6fe0;border:1px solid #dbe6fb;background:#f4f8ff;border-radius:7px;padding:3px 7px}
+  .review{border:1px solid #dcefe4;background:#f4fbf7;border-radius:14px;padding:11px 13px;margin-top:9px;font-size:12px;color:#2f5c45}
+  .review .hd{font-weight:650;display:flex;align-items:center;gap:7px;margin-bottom:6px}
+  .tag{display:inline-flex;align-items:center;height:18px;padding:0 7px;border-radius:6px;font-size:10px;font-weight:600;background:#dff3e8;color:#1f7a50}
+  .row{display:flex;justify-content:space-between;gap:12px;padding:3px 0;border-top:1px dashed #d9ebe1;color:#4d6b5a}
+  .row:first-of-type{border-top:0}
+  .approval{border:1px solid #f0d9a8;background:#fdf6e7;border-radius:14px;padding:12px 13px;margin:10px 0;font-size:12px;color:#6b4d1c}
+  .approval .hd{font-weight:650;margin-bottom:5px}
+  .approval .btns{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}
+  .composer{padding:10px 24px 16px;border-top:1px solid var(--line);background:rgba(250,248,244,.94)}
+  .cbox{max-width:920px;margin:0 auto;border:1px solid #e2ddd3;background:#fff;border-radius:15px;padding:10px 12px 8px;box-shadow:0 6px 18px rgba(40,32,20,.05);position:relative}
+  .attachments{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+  .att{display:inline-flex;align-items:center;gap:6px;background:#f4f1eb;border:1px solid #e8e2d7;border-radius:8px;padding:4px 7px;font-size:11px;color:#5f5a51;max-width:260px}
+  .att span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .att button{border:0;background:transparent;color:#9c9589;cursor:pointer;font-size:13px;line-height:1}
+  .cbox input[type=text]{width:100%;border:0;outline:0;font-size:13px;color:#2b2824;background:transparent;padding:2px 2px 8px;font-family:inherit}
+  .cbox input[type=text]::placeholder{color:#a8a196}
+  .ctools{display:flex;align-items:center;gap:7px}
+  .chip{height:23px;padding:0 8px;border-radius:7px;background:#f4f1eb;color:#6f685c;font-size:10.5px;display:inline-flex;align-items:center;border:0;font-family:inherit;cursor:pointer}
+  .chip:hover{background:#ece7dd;color:#3b362d}
+  .mentionChips{display:flex;gap:7px;align-items:center}
+  .member{background:linear-gradient(145deg,#b09cff,#7b61ff)}
+  .memberPanel{position:absolute;right:24px;top:68px;width:380px;max-height:520px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 40px rgba(35,28,18,.18);padding:12px;z-index:40}
+  .mpTitle{display:flex;align-items:center;font-size:13px;font-weight:650;margin-bottom:8px}
+  .mpTitle button{margin-left:auto;border:0;background:transparent;color:#9c9589;font-size:16px;cursor:pointer}
+  .mpList{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+  .mpRow{display:flex;align-items:center;gap:8px;padding:6px 6px;border-radius:8px}
+  .mpRow:hover{background:#f7f4ee}
+  .mpRow .name{font-size:12px;font-weight:600}
+  .mpRow .role{font-size:10px;color:#9c9589;margin-left:5px}
+  .mpInfo{flex:1;min-width:0}
+  .perms{display:flex;flex-wrap:wrap;gap:6px;margin-top:3px;font-size:9.5px;color:#8d867a}
+  .perms label{display:flex;align-items:center;gap:2px;cursor:pointer}
+  .mpRow .rm{margin-left:auto;border:0;background:transparent;color:#b0a89c;cursor:pointer;font-size:14px;align-self:flex-start}
+  .modalMask{position:fixed;inset:0;background:rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;z-index:100}
+  .modalMask[hidden]{display:none}
+  .modal{width:400px;max-width:calc(100vw - 32px);background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 20px 50px rgba(0,0,0,.2)}
+  .modal h3{font-size:14px;margin:0 0 8px}
+  .modal p{font-size:12px;color:#6f685c;line-height:1.6;margin:0 0 14px}
+  .modal .mBtns{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+  .setup{width:480px}
+  .setupList{display:flex;flex-direction:column;gap:3px;margin:6px 0 10px}
+  .setupRow{display:flex;gap:8px;align-items:center;font-size:12px;padding:4px 0;border-bottom:1px dashed #eee}
+  .setupRow .st{margin-left:auto;color:#6f685c;font-size:11px}
+  .setupLog{font-size:11px;color:#8d867a;min-height:18px;line-height:1.5;margin-bottom:8px}
+  .setupActions{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+  .setupActions a{color:#2f7cf6;font-size:11px}
+  .mpAddTitle{font-size:11px;color:#8d867a;margin:8px 0 6px}
+  .mpChoices{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+  .mpCustom{display:flex;flex-direction:column;gap:6px}
+  .mpCustom input{height:29px;border:1px solid var(--line);border-radius:8px;padding:0 8px;font:12px inherit;outline:0}
+  .mpHint{font-size:10px;color:#9c9589;line-height:1.5;margin-top:7px}
+  .attachPanel{position:absolute;left:12px;bottom:44px;width:min(560px,calc(100% - 24px));background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 30px rgba(35,28,18,.14);padding:12px;z-index:30}
+  .attachPanel .apTitle{font-size:12px;font-weight:650;margin-bottom:8px}
+  .apRow{display:flex;gap:8px}
+  .apRow input{flex:1;min-width:0;height:30px;border:1px solid var(--line);border-radius:8px;padding:0 8px;font:12px inherit;outline:0}
+  .apHint{font-size:10.5px;color:#9c9589;margin-top:8px;line-height:1.5}
+  .apClose{position:absolute;right:8px;top:6px;border:0;background:transparent;color:#9c9589;font-size:15px;cursor:pointer;line-height:1}
+  .send{margin-left:auto;width:28px;height:28px;border-radius:50%;background:#1f1e1b;color:#fff;border:0;cursor:pointer;font-size:13px}
+  .empty{text-align:center;color:#a49d91;font-size:13px;margin:56px 0}
+  .empty .et{font-size:16px;color:#3b362d;font-weight:650;margin-bottom:8px}
+  .empty .eh{margin-bottom:14px;font-size:12px}
+  .system{text-align:center;font-size:10.5px;color:#b0aa9f;margin:12px 0}
+  .ufiles{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+  .fchip{font-size:10px;background:#f1ede6;border-radius:6px;padding:2px 6px;color:#6f685c}
+  @media(max-width:640px){.head{padding:0 12px}.transcript{padding:12px}.msg{max-width:96%}.actions .btn:not(.primary){display:none}.sub{max-width:160px}}
+</style>
+</head>
+<body>
+  <header class="head">
+    <div class="stack" id="memberStack"></div>
+    <div>
+      <div class="title">内容创作 <span style="color:#a49d91;font-weight:500;font-size:11px">· 3 个助理</span></div>
+      <div class="sub" id="sub">—</div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="sessionBtn">会话 1 ▾</button>
+      <button class="btn" id="setupBtn">环境</button>
+      <button class="btn" id="members">成员 3</button>
+      <button class="btn primary" id="newChat">＋ 新建群聊</button>
+      <div class="menu" id="sessionMenu" hidden></div>
+      <div class="memberPanel" id="memberPanel" hidden>
+        <div class="mpTitle">群成员 <button id="closeMembers">×</button></div>
+        <div class="mpList" id="memberList"></div>
+        <div class="mpAddTitle">添加已有助理</div>
+        <div class="mpChoices" id="builtinChoices"></div>
+        <div class="mpAddTitle">添加自定义成员</div>
+        <div class="mpCustom">
+          <input id="memberName" placeholder="名称，如 Reviewer" maxlength="20" />
+          <input id="memberRole" placeholder="角色，如 独立校验" maxlength="30" />
+          <button class="btn primary" id="addMember">＋ 添加自定义成员</button>
+        </div>
+        <div class="mpHint">上限 10 人；默认全部权限；自定义成员由千问 CLI 真实执行。</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="transcript" id="transcript">
+    <div class="inner" id="messages"></div>
+  </main>
+
+  <footer class="composer">
+    <div class="cbox">
+      <div class="attachments" id="attachments" style="display:none"></div>
+      <div class="attachPanel" id="attachPanel" hidden>
+        <button class="apClose" id="closeAttach">×</button>
+        <div class="apTitle">添加附件</div>
+        <div class="apRow">
+          <input id="pathInput" placeholder="粘贴文件绝对路径，如 C:\Users\...\报告.pdf" />
+          <button class="btn primary" id="addPath">添加</button>
+        </div>
+        <div class="apHint">也可以把文件直接拖进输入框。路径会交给 WorkBuddy / 千问办公读取。</div>
+      </div>
+      <input id="input" type="text" placeholder="给「内容创作」发消息… 输入 @ 指定助理" autocomplete="off" />
+      <div class="ctools">
+        <button class="chip" id="attachBtn">＋ 附件</button>
+        <span class="mentionChips" id="mentionChips"></span>
+        <button class="chip" id="modeBtn" style="margin-left:auto">标准 ▾</button>
+        <button class="send" id="send">↑</button>
+      </div>
+      <div class="menu mode" id="modeMenu" hidden>
+        <button class="menuItem" data-mode="标准">标准</button>
+        <button class="menuItem" data-mode="快速">快速</button>
+        <button class="menuItem" data-mode="深度">深度</button>
+      </div>
+    </div>
+  </footer>
+
+  <div class="modalMask" id="setupMask" hidden>
+    <div class="modal setup">
+      <h3>首次使用配置</h3>
+      <p>Office Bus 会操作本机的 WorkBuddy 与千问办公。第一次使用需要把两个应用以调试端口启动，并完成千问 CLI 登录。</p>
+      <div class="setupList" id="setupList"></div>
+      <div class="setupLog" id="setupLog"></div>
+      <div class="setupActions" id="setupActions"></div>
+      <div class="mBtns">
+        <button class="btn" id="setupLater">稍后</button>
+        <button class="btn" id="setupRefresh">重新检查</button>
+        <button class="btn primary" id="setupRun">一键配置</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modalMask" id="confirmMask" hidden>
+    <div class="modal">
+      <h3 id="confirmTitle">移除成员</h3>
+      <p id="confirmText"></p>
+      <div class="mBtns">
+        <button class="btn" id="confirmCancel">取消</button>
+        <button class="btn" id="confirmDetach">仅移除</button>
+        <button class="btn primary" id="confirmStop">停止并移除</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const seed = [
+    { type: 'user', text: '把 Q3 财报做成 8 页汇报 PPT，今天下班前给我。先出内容，再统一版式。' },
+    { type: 'chief', text: '收到。拆成三步：WorkBuddy 提取财报要点 → 千问办公做版式 → 我做独立复核。先派 WorkBuddy，产出落 /workspace/tasks/T-07。', status: '已分派 · 14:21', dot: 'run' },
+    { type: 'handoff', from: 'Chief', to: 'WorkBuddy', body: '任务 T-07 · A 对话 · 验收：8 页 ±1、三张图、数字可追溯 · 截止 18:00' },
+    { type: 'work', text: '已读 PDF，提取 12 个指标，正在生成第 5/8 页。图表口径按 GAAP，先出一版草稿。', status: '运行中 · 02:31 · 预计还需 6 分钟', dot: 'run', progress: true, artifact: ['PPT', 'q3-draft.pptx', '8 页 · 2.4 MB · 草稿'] },
+    { type: 'qwen', text: '待命：等 WorkBuddy 的大纲和图表，我按公司模板 v3 重排版式，不改数字。', status: '排队中 · 依赖 T-07', dot: 'wait' },
+    { type: 'handoff', from: 'WorkBuddy', to: '千问办公', body: '输入：outline.md + 3 张图 · 输出：q3-final.pptx · 约束：不改数字，只调版式' },
+    { type: 'qwen', text: '已套用模板 v3：统一标题层级、图表配色、页脚页码；第 4 页的数字口径我标了黄，等你确认。', status: '完成 · 01:12', dot: '', artifact: ['PPT', 'q3-final.pptx', '8 页 · 3.1 MB · 可编辑'] },
+    { type: 'review', text: '校验结果 KEEP', rows: [['页数 / 结构', '通过 · 8 页'], ['数字一致性', '6/7 通过 · 第 4 页口径待定'], ['来源与证据', '3 张图可回溯到 PDF 页码']], tail: '唯一阻塞：第 4 页用 GAAP 还是 non-GAAP？' },
+    { type: 'approval', text: '第 4 页「现金流」采用哪个口径？两个版本都已生成，确认后我让千问办公替换并重新导出。', options: ['用 GAAP', '用 non-GAAP', '先看两版'] }
+  ];
+
+  const KEY = 'officeGroupChat.v2';
+  const DEFAULT_MEMBERS = [
+    { id: 'chief', name: 'Chief', role: '协调', kind: 'chief' },
+    { id: 'workbuddy', name: 'WorkBuddy', role: 'A 对话', kind: 'work' },
+    { id: 'qwen', name: '千问办公', role: 'B 对话', kind: 'qwen' }
+  ];
+  const messages = document.getElementById('messages');
+  const transcript = document.getElementById('transcript');
+  const input = document.getElementById('input');
+  const sub = document.getElementById('sub');
+  const sessionBtn = document.getElementById('sessionBtn');
+  const sessionMenu = document.getElementById('sessionMenu');
+  const memberStack = document.getElementById('memberStack');
+  const memberPanel = document.getElementById('memberPanel');
+  const memberList = document.getElementById('memberList');
+  const builtinChoices = document.getElementById('builtinChoices');
+  const mentionChips = document.getElementById('mentionChips');
+  const memberName = document.getElementById('memberName');
+  const memberRole = document.getElementById('memberRole');
+  const addMember = document.getElementById('addMember');
+  const closeMembers = document.getElementById('closeMembers');
+  const confirmMask = document.getElementById('confirmMask');
+  const confirmTitle = document.getElementById('confirmTitle');
+  const confirmText = document.getElementById('confirmText');
+  const confirmCancel = document.getElementById('confirmCancel');
+  const confirmDetach = document.getElementById('confirmDetach');
+  const confirmStop = document.getElementById('confirmStop');
+  const setupMask = document.getElementById('setupMask');
+  const setupList = document.getElementById('setupList');
+  const setupLog = document.getElementById('setupLog');
+  const setupActions = document.getElementById('setupActions');
+  const setupRun = document.getElementById('setupRun');
+  const setupRefresh = document.getElementById('setupRefresh');
+  const setupLater = document.getElementById('setupLater');
+  const setupBtn = document.getElementById('setupBtn');
+  const modeBtn = document.getElementById('modeBtn');
+  const modeMenu = document.getElementById('modeMenu');
+  const attachPanel = document.getElementById('attachPanel');
+  const pathInput = document.getElementById('pathInput');
+  const attachBtn = document.getElementById('attachBtn');
+  const addPath = document.getElementById('addPath');
+  const closeAttach = document.getElementById('closeAttach');
+  const attachments = document.getElementById('attachments');
+
+  let store = { activeId: '', conversations: [] };
+  let active = null;
+  let history = [];
+  let pendingFiles = [];
+  let mode = '标准';
+
+  function uid() {
+    return 'c-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
+  }
+
+  function now() {
+    return new Date().toISOString();
+  }
+
+  function persist() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(store));
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  function clone(value) {
+    return JSON.parse(JSON.stringify(value));
+  }
+
+  function normalizeMember(member) {
+    if (!member.permissions) member.permissions = { read: true, write: true, shell: true, external: true };
+    return member;
+  }
+
+  function loadStore() {
+    let saved = null;
+    try {
+      saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+    } catch (e) {
+      saved = null;
+    }
+    if (saved && Array.isArray(saved.conversations) && saved.conversations.length) {
+      store = saved;
+    } else {
+      let legacy = null;
+      try {
+        legacy = JSON.parse(localStorage.getItem('officeGroupChat.v1') || 'null');
+      } catch (e) {
+        legacy = null;
+      }
+      if (Array.isArray(legacy) && legacy.length) {
+        const id = uid();
+        store = {
+          activeId: id,
+          conversations: [{ id, title: '历史对话', createdAt: now(), updatedAt: now(), mode: '标准', messages: legacy }]
+        };
+      } else {
+        const id = uid();
+        store = {
+          activeId: id,
+          conversations: [{ id, title: '示例 · Q3 财报汇报', createdAt: now(), updatedAt: now(), mode: '标准', messages: clone(seed) }]
+        };
+      }
+    }
+    active = store.conversations.find((c) => c.id === store.activeId) || store.conversations[0];
+    store.activeId = active.id;
+    store.conversations.forEach((c) => {
+      if (!Array.isArray(c.members) || c.members.length === 0) c.members = clone(DEFAULT_MEMBERS);
+      c.members.forEach(normalizeMember);
+    });
+    mode = active.mode || '标准';
+    persist();
+  }
+
+  function saveActive() {
+    if (!active) return;
+    active.messages = history;
+    active.updatedAt = now();
+    persist();
+  }
+
+  function el(tag, cls, text) {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function avatar(kind) {
+    return el('div', 'av ' + kind);
+  }
+
+  function avatarClass(member) {
+    if (member.kind === 'work') return 'work';
+    if (member.kind === 'qwen') return 'qwen';
+    if (member.kind === 'custom') return 'member';
+    return 'chief';
+  }
+
+  function renderHeaderMembers() {
+    memberStack.innerHTML = '';
+    (active.members || []).slice(0, 5).forEach((m) => {
+      memberStack.appendChild(el('div', 'av ' + avatarClass(m)));
+    });
+  }
+
+  function renderMentionChips() {
+    mentionChips.innerHTML = '';
+    (active.members || []).forEach((m) => {
+      if (m.kind === 'chief') return;
+      const b = el('button', 'chip', '@ ' + m.name);
+      b.setAttribute('data-mention', m.name);
+      mentionChips.appendChild(b);
+    });
+  }
+
+  function addMemberToGroup(member) {
+    if (!active) return false;
+    if (active.members.length >= 10) {
+      alert('成员上限 10 个');
+      return false;
+    }
+    if (active.members.some((m) => m.name === member.name)) {
+      alert('已在群聊中：' + member.name);
+      return false;
+    }
+    normalizeMember(member);
+    active.members.push(member);
+    active.updatedAt = now();
+    persist();
+    renderHeaderMembers();
+    renderMentionChips();
+    renderMemberPanel();
+    updateHeader();
+    return true;
+  }
+
+  function removeMemberFromGroup(id) {
+    if (!active) return;
+    if (active.members.length <= 1) {
+      alert('至少保留一个成员');
+      return;
+    }
+    active.members = active.members.filter((m) => m.id !== id);
+    active.updatedAt = now();
+    persist();
+    renderHeaderMembers();
+    renderMentionChips();
+    renderMemberPanel();
+    updateHeader();
+  }
+
+  function memberTasks(member) {
+    if (!active) return [];
+    return (active.messages || []).filter((m) => {
+      if (!m.taskId || !m.status || /完成|失败|已停止/.test(m.status)) return false;
+      if (member.kind === 'work') return m.type === 'work';
+      if (member.kind === 'qwen') return m.type === 'qwen';
+      if (member.kind === 'custom') return m.type === 'member' && m.memberName === member.name;
+      return false;
+    });
+  }
+
+  let pendingRemoval = null;
+
+  async function stopTasks(tasks) {
+    for (const task of tasks) {
+      if (!task.taskId) continue;
+      try {
+        const r = await fetch('/api/stop', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ task_id: task.taskId })
+        });
+        const d = await r.json();
+        if (d.ok) {
+          task.status = '已停止';
+          task.dot = '';
+          task.text = '任务已停止。';
+        }
+      } catch (e) {
+        /* 保留运行状态 */
+      }
+    }
+    persist();
+    tasks.forEach(applyTaskDom);
+  }
+
+  function requestRemoveMember(member) {
+    const tasks = memberTasks(member);
+    if (!tasks.length) {
+      removeMemberFromGroup(member.id);
+      return;
+    }
+    pendingRemoval = { member, tasks };
+    confirmTitle.textContent = '移除 ' + member.name;
+    confirmText.textContent = member.name + ' 还有 ' + tasks.length + ' 个任务在运行。要停止任务后再移除，还是仅移除成员、让任务继续跑？';
+    confirmMask.hidden = false;
+  }
+
+  function renderMemberPanel() {
+    memberList.innerHTML = '';
+    (active.members || []).forEach((m) => {
+      const row = el('div', 'mpRow');
+      row.appendChild(el('div', 'av ' + avatarClass(m)));
+      const info = el('div', 'mpInfo');
+      const line = el('div');
+      line.appendChild(el('span', 'name', m.name));
+      line.appendChild(el('span', 'role', m.role));
+      info.appendChild(line);
+      const perms = el('div', 'perms');
+      [
+        ['read', '读'],
+        ['write', '写'],
+        ['shell', '命令'],
+        ['external', '外发']
+      ].forEach(([key, label]) => {
+        const wrap = el('label');
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = m.permissions[key] !== false;
+        cb.addEventListener('change', function () {
+          m.permissions[key] = cb.checked;
+          active.updatedAt = now();
+          persist();
+        });
+        wrap.appendChild(cb);
+        wrap.appendChild(document.createTextNode(label));
+        perms.appendChild(wrap);
+      });
+      info.appendChild(perms);
+      row.appendChild(info);
+      const rm = el('button', 'rm', '×');
+      rm.title = '移除 ' + m.name;
+      rm.addEventListener('click', function () {
+        requestRemoveMember(m);
+      });
+      row.appendChild(rm);
+      memberList.appendChild(row);
+    });
+
+    builtinChoices.innerHTML = '';
+    const presets = [
+      { id: 'workbuddy', name: 'WorkBuddy', role: 'A 对话', kind: 'work' },
+      { id: 'qwen', name: '千问办公', role: 'B 对话', kind: 'qwen' }
+    ];
+    presets.forEach((preset) => {
+      if (active.members.some((m) => m.name === preset.name)) return;
+      const b = el('button', 'btn', '＋ ' + preset.name);
+      b.addEventListener('click', function () {
+        addMemberToGroup(clone(preset));
+      });
+      builtinChoices.appendChild(b);
+    });
+    if (!builtinChoices.children.length) {
+      builtinChoices.appendChild(el('span', 'mpHint', '内置助理都已在群聊中'));
+    }
+    addMember.disabled = active.members.length >= 10;
+  }
+
+  function updateHeader() {
+    sub.textContent = '当前：' + (active ? active.title : '新群聊') + ' · ' + (active ? active.members.length : 0) + ' 个助理';
+    sessionBtn.textContent = '会话 ' + store.conversations.length + ' ▾';
+    document.getElementById('members').textContent = '成员 ' + (active ? active.members.length : 0);
+    renderHeaderMembers();
+    renderMentionChips();
+    modeBtn.textContent = mode + ' ▾';
+    modeMenu.querySelectorAll('[data-mode]').forEach((b) => {
+      b.classList.toggle('on', b.getAttribute('data-mode') === mode);
+    });
+  }
+
+  function render(m) {
+    if (m.type === 'system') {
+      messages.appendChild(el('div', 'system', m.text));
+      return;
+    }
+    if (m.type === 'handoff') {
+      const h = el('div', 'handoff');
+      h.appendChild(el('div', 'arrow', '↪'));
+      const body = el('div');
+      body.innerHTML = '<b>交接 · ' + m.from + ' → ' + m.to + '</b><br>' + m.body;
+      h.appendChild(body);
+      messages.appendChild(h);
+      return;
+    }
+    if (m.type === 'approval') {
+      const a = el('div', 'approval');
+      a.appendChild(el('div', 'hd', '⚠ 需要你拍板'));
+      a.appendChild(el('div', '', m.text));
+      const btns = el('div', 'btns');
+      (m.options || []).forEach(function (opt, i) {
+        const b = el('button', 'btn' + (i === 0 ? ' primary' : ''), opt);
+        b.addEventListener('click', function () {
+          append({ type: 'system', text: '已记录你的决定：' + opt + '（模拟）' });
+          b.disabled = true;
+        });
+        btns.appendChild(b);
+      });
+      a.appendChild(btns);
+      messages.appendChild(a);
+      return;
+    }
+
+    const wrap = el('div', 'msg' + (m.type === 'user' ? ' user' : ''));
+    if (m.mid) wrap.setAttribute('data-mid', m.mid);
+    if (m.type !== 'user') {
+      wrap.appendChild(avatar(m.type === 'work' ? 'work' : m.type === 'qwen' ? 'qwen' : m.type === 'review' ? 'review' : m.type === 'member' ? 'member' : 'chief'));
+    }
+    const content = el('div', 'content');
+    const name = el('div', 'name');
+    if (m.type === 'user') {
+      name.textContent = '你';
+    } else if (m.type === 'chief') {
+      name.innerHTML = 'Chief <span class="role">协调</span>';
+    } else if (m.type === 'work') {
+      name.innerHTML = 'WorkBuddy <span class="role">A 对话</span>';
+    } else if (m.type === 'qwen') {
+      name.innerHTML = '千问办公 <span class="role">B 对话</span>';
+    } else if (m.type === 'review') {
+      name.innerHTML = 'Reviewer <span class="role">独立校验</span>';
+    } else if (m.type === 'member') {
+      name.textContent = m.memberName || '成员';
+      name.appendChild(el('span', 'role', m.memberRole || '成员'));
+    }
+    content.appendChild(name);
+
+    if (m.type === 'review') {
+      const r = el('div', 'review');
+      const hd = el('div', 'hd');
+      hd.innerHTML = '校验结果 <span class="tag">KEEP</span>';
+      r.appendChild(hd);
+      (m.rows || []).forEach(function (row) {
+        const line = el('div', 'row');
+        line.appendChild(el('span', '', row[0]));
+        line.appendChild(el('span', '', row[1]));
+        r.appendChild(line);
+      });
+      if (m.tail) r.appendChild(el('div', '', m.tail));
+      content.appendChild(r);
+    } else {
+      const b = el('div', 'bubble', m.text);
+      content.appendChild(b);
+      if (m.files && m.files.length) {
+        const fs = el('div', 'ufiles');
+        m.files.forEach((name) => fs.appendChild(el('span', 'fchip', '📎 ' + name)));
+        content.appendChild(fs);
+      }
+      if (m.progress) {
+        const p = el('div', 'progress');
+        p.appendChild(el('i'));
+        content.appendChild(p);
+      }
+      if (m.status) {
+        const s = el('div', 'status');
+        s.appendChild(el('span', 'dot ' + (m.dot || '')));
+        s.appendChild(el('span', '', m.status));
+        content.appendChild(s);
+      }
+      if (m.artifact) {
+        const a = el('div', 'artifact');
+        a.appendChild(el('div', 'file', m.artifact[0]));
+        const info = el('div');
+        info.appendChild(el('div', 'nm', m.artifact[1]));
+        info.appendChild(el('div', 'mt', m.artifact[2]));
+        a.appendChild(info);
+        a.appendChild(el('div', 'open', '打开'));
+        content.appendChild(a);
+      }
+    }
+    wrap.appendChild(content);
+    messages.appendChild(wrap);
+  }
+
+  function renderEmpty() {
+    const box = el('div', 'empty');
+    box.appendChild(el('div', 'et', '新群聊已创建'));
+    box.appendChild(el('div', 'eh', '输入 @WorkBuddy 或 @千问办公 开始，或者'));
+    const b = el('button', 'btn', '载入示例对话');
+    b.addEventListener('click', function () {
+      active.messages = clone(seed);
+      active.title = '示例 · Q3 财报汇报';
+      history = active.messages;
+      persist();
+      renderAll();
+    });
+    box.appendChild(b);
+    messages.appendChild(box);
+  }
+
+  function renderAll() {
+    messages.innerHTML = '';
+    history = active.messages || [];
+    if (!history.length) {
+      renderEmpty();
+    } else {
+      const d = el('div', 'day', '今天');
+      messages.appendChild(d);
+      history.forEach(render);
+      transcript.scrollTop = 0;
+    }
+    updateHeader();
+    renderSessionMenu();
+    resumeTasks();
+    if (!memberPanel.hidden) renderMemberPanel();
+  }
+
+  function append(m) {
+    const empty = messages.querySelector('.empty');
+    if (empty) empty.remove();
+    history.push(m);
+    render(m);
+    transcript.scrollTop = transcript.scrollHeight;
+    saveActive();
+    return messages.lastElementChild;
+  }
+
+  function renderSessionMenu() {
+    sessionMenu.innerHTML = '';
+    const list = [...store.conversations].sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
+    list.forEach((c) => {
+      const b = el('button', 'menuItem' + (c.id === active.id ? ' on' : ''), c.title);
+      b.addEventListener('click', function () {
+        active = c;
+        store.activeId = c.id;
+        mode = c.mode || '标准';
+        sessionMenu.hidden = true;
+        pendingFiles = [];
+        renderAttachments();
+        attachPanel.hidden = true;
+        persist();
+        renderAll();
+      });
+      sessionMenu.appendChild(b);
+    });
+    const add = el('button', 'menuItem add', '＋ 新建群聊');
+    add.addEventListener('click', function () {
+      sessionMenu.hidden = true;
+      newConversation();
+    });
+    sessionMenu.appendChild(add);
+  }
+
+  function newConversation() {
+    const stamp = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    const c = {
+      id: uid(),
+      title: '新群聊 ' + stamp,
+      createdAt: now(),
+      updatedAt: now(),
+      mode: '标准',
+      members: clone(DEFAULT_MEMBERS).map(normalizeMember),
+      messages: []
+    };
+    store.conversations.unshift(c);
+    store.activeId = c.id;
+    active = c;
+    history = [];
+    mode = '标准';
+    pendingFiles = [];
+    renderAttachments();
+    attachPanel.hidden = true;
+    persist();
+    renderAll();
+    input.focus();
+  }
+
+  function titleFrom(text) {
+    if (!active) return;
+    if (!active.title.startsWith('新群聊')) return;
+    const t = String(text || '').replace(/^@\S+\s*/, '').replace(/\s+/g, ' ').trim().slice(0, 18);
+    active.title = t || '新群聊';
+    updateHeader();
+    renderSessionMenu();
+    persist();
+  }
+
+  function statusNode(name) {
+    return name ? name : null;
+  }
+
+  const polling = new Set();
+
+  function applyTaskDom(data) {
+    if (!active || !data || !data.mid) return;
+    const node = document.querySelector('[data-mid="' + data.mid + '"]');
+    if (!node) return;
+    const bubble = node.querySelector('.bubble');
+    const status = node.querySelector('.status');
+    const statusText = status ? status.querySelector('span:last-child') : null;
+    const dot = status ? status.querySelector('.dot') : null;
+    if (bubble) bubble.textContent = data.text || '';
+    if (statusText) statusText.textContent = data.status || '';
+    if (dot) dot.className = 'dot ' + (data.dot || '');
+  }
+
+  function pollTask(data, conv) {
+    if (!data.taskId || polling.has(data.taskId)) return;
+    polling.add(data.taskId);
+    const tick = () => {
+      fetch('/api/task?id=' + encodeURIComponent(data.taskId), { cache: 'no-store' })
+        .then((r) => r.json())
+        .then((d) => {
+          const seconds = Math.round((Date.now() - (data.startedAt || Date.now())) / 1000);
+          const clean = String(d.last_text || '').replace(/DONE\|[^\n]*/g, '').replace(/FAIL\|[^\n]*/g, '').trim();
+          if (d.status === 'done' || d.status === 'failed' || d.status === 'stopped') {
+            data.text = clean || (d.status === 'failed' ? '任务失败。' : d.status === 'stopped' ? '任务已停止。' : '任务完成。');
+            data.status = d.status === 'done' ? '完成 · ' + seconds + 's' : d.status === 'failed' ? '失败 · ' + seconds + 's' : '已停止 · ' + seconds + 's';
+            data.dot = '';
+            conv.updatedAt = now();
+            persist();
+            if (active === conv) applyTaskDom(data);
+            polling.delete(data.taskId);
+            return;
+          }
+          if (clean) data.text = clean.slice(-600);
+          data.status = '运行中 · ' + seconds + 's';
+          data.dot = 'run';
+          conv.updatedAt = now();
+          persist();
+          if (active === conv) {
+            applyTaskDom(data);
+            transcript.scrollTop = transcript.scrollHeight;
+          }
+          setTimeout(tick, 2500);
+        })
+        .catch((err) => {
+          data.text = '派发失败：' + err.message;
+          data.status = '失败';
+          data.dot = '';
+          conv.updatedAt = now();
+          persist();
+          if (active === conv) applyTaskDom(data);
+          polling.delete(data.taskId);
+        });
+    };
+    tick();
+  }
+
+  function resumeTasks() {
+    if (!active) return;
+    (active.messages || []).forEach((m) => {
+      if (m && m.taskId && m.status && !/完成|失败|已停止/.test(m.status)) pollTask(m, active);
+    });
+  }
+
+  function appendAssistantTask(text, assistant, kind, label, member) {
+    const conv = active;
+    const data = {
+      type: kind,
+      mid: 't-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 5),
+      text: '正在派给 ' + label + '…',
+      status: '派发中 · 0s',
+      dot: 'run',
+      taskId: '',
+      memberName: member ? member.name : '',
+      memberRole: member ? member.role : ''
+    };
+    const node = append(data);
+    node.setAttribute('data-mid', data.mid);
+    const startedAt = Date.now();
+    const body = member ? { assistant: 'custom', member: { name: member.name, role: member.role, permissions: member.permissions }, text: text } : { assistant: assistant, text: text };
+
+    const fail = (message) => {
+      data.text = '派发失败：' + message;
+      data.status = '失败';
+      data.dot = '';
+      conv.updatedAt = now();
+      persist();
+      if (active === conv) applyTaskDom(data);
+    };
+
+    fetch('/api/dispatch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d.ok) throw new Error(d.error || '派发失败');
+        data.taskId = d.task_id;
+        data.startedAt = startedAt;
+        data.text = '已派给 ' + label + ' · ' + (d.thread || '当前对话') + '，任务 ' + d.task_id + ' 已进入队列。';
+        data.status = '运行中 · 0s';
+        conv.updatedAt = now();
+        persist();
+        if (active === conv) applyTaskDom(data);
+        pollTask(data, conv);
+      })
+      .catch((err) => fail(err.message));
+  }
+
+  function appendWorkTask(text) {
+    appendAssistantTask(text, 'workbuddy', 'work', 'WorkBuddy');
+  }
+
+  function appendQwenTask(text) {
+    appendAssistantTask(text, 'qwen', 'qwen', '千问办公');
+  }
+
+  function appendCustomTask(member, text) {
+    appendAssistantTask(text, 'custom', 'member', member.name, member);
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function uploadFiles(files) {
+    const paths = [];
+    for (const file of files) {
+      if (file.path) {
+        paths.push(file.path);
+        continue;
+      }
+      const data = await fileToBase64(file);
+      const r = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: file.name, data: data })
+      });
+      const d = await r.json();
+      if (!d.ok) throw new Error(d.error || '上传失败：' + file.name);
+      paths.push(d.path);
+    }
+    return paths;
+  }
+
+  function renderAttachments() {
+    attachments.innerHTML = '';
+    if (!pendingFiles.length) {
+      attachments.style.display = 'none';
+      return;
+    }
+    attachments.style.display = 'flex';
+    pendingFiles.forEach((file, index) => {
+      const chip = el('div', 'att');
+      chip.appendChild(el('span', '', '📎 ' + file.name));
+      const x = el('button', '', '×');
+      x.addEventListener('click', function () {
+        pendingFiles.splice(index, 1);
+        renderAttachments();
+      });
+      chip.appendChild(x);
+      attachments.appendChild(chip);
+    });
+  }
+
+  async function send() {
+    const text = input.value.trim();
+    const files = pendingFiles.slice();
+    if (!text && !files.length) return;
+    input.value = '';
+    pendingFiles = [];
+    renderAttachments();
+
+    let paths = [];
+    if (files.length) {
+      try {
+        paths = await uploadFiles(files);
+      } catch (err) {
+        append({ type: 'system', text: '附件上传失败：' + err.message });
+      }
+    }
+
+    const display = text + (files.length ? '\n📎 ' + files.map((f) => f.name).join('、') : '');
+    append({ type: 'user', text: display, files: files.map((f) => f.name) });
+    titleFrom(text || (files[0] && files[0].name) || '');
+
+    const dispatchText = [
+      text,
+      paths.length ? '附件路径：\n' + paths.join('\n') : '',
+      mode !== '标准' ? '（输出模式：' + mode + '）' : ''
+    ].filter(Boolean).join('\n');
+
+    const members = [...active.members].sort((a, b) => b.name.length - a.name.length);
+    const mentionText = text.replace(/^@\s*/, '@');
+    const mentioned = members.find((m) => mentionText.startsWith('@' + m.name));
+    let finalDispatch = dispatchText;
+    if (mentioned) {
+      const p = mentioned.permissions || {};
+      const denied = [];
+      if (p.read === false) denied.push('读取文件');
+      if (p.write === false) denied.push('写入文件');
+      if (p.shell === false) denied.push('执行命令');
+      if (p.external === false) denied.push('外发/发布');
+      if (denied.length) finalDispatch += '\n（权限限制：不能' + denied.join('、') + '）';
+    }
+    if (mentioned && mentioned.kind === 'work') {
+      appendWorkTask(finalDispatch);
+      return;
+    }
+    if (mentioned && mentioned.kind === 'qwen') {
+      appendQwenTask(finalDispatch);
+      return;
+    }
+    if (mentioned && mentioned.kind === 'custom') {
+      appendCustomTask(mentioned, finalDispatch);
+      return;
+    }
+    if (!members.some((m) => m.kind === 'chief')) {
+      append({ type: 'system', text: '当前群聊没有协调者，先用「成员」添加一个，或 @ 一个成员。' });
+      return;
+    }
+    setTimeout(function () {
+      append({
+        type: 'chief',
+        text: '收到。我先拆一下：这类任务可以交给 WorkBuddy 做内容、千问办公做版式，我负责验收。要我直接派下去吗？',
+        status: '已接收 · ' + new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+        dot: 'run'
+      });
+    }, 700);
+  }
+
+  let setupTimer = null;
+  let setupDone = false;
+  let setupManual = false;
+
+  function setupRow(label, ok, text) {
+    const row = el('div', 'setupRow');
+    row.appendChild(el('span', '', label));
+    row.appendChild(el('span', 'st', (ok === true ? '✅ ' : ok === false ? '❌ ' : '⏳ ') + text));
+    setupList.appendChild(row);
+  }
+
+  function renderSetup(s) {
+    setupList.innerHTML = '';
+    const wb = s.workbuddy || {};
+    const qw = s.qwen || {};
+    setupRow('WorkBuddy 安装', Boolean(wb.installed), wb.installed ? '已找到' : '未找到');
+    setupRow('WorkBuddy 调试端口', Boolean(wb.port_up), wb.port_up ? ':' + wb.port : wb.running ? '运行中但未开端口' : '未运行');
+    setupRow('千问办公 安装', Boolean(qw.installed), qw.installed ? '已找到' : '未找到');
+    setupRow('千问办公 调试端口', Boolean(qw.port_up), qw.port_up ? ':' + qw.port : qw.running ? '运行中但未开端口' : '未运行');
+    const login = s.login || {};
+    if (login.pending) setupRow('千问 CLI 登录', null, '等待浏览器授权');
+    else setupRow('千问 CLI 登录', Boolean(login.logged_in), login.logged_in ? '已登录' : login.hint || '未登录');
+    setupRow('工位面板', true, (s.panel && s.panel.url) || '本机');
+
+    const log = [];
+    if (s.ready) log.push('环境已就绪。');
+    if (s.setup && s.setup.running) log.push('正在配置…');
+    if (s.setup && s.setup.steps) log.push(...s.setup.steps.slice(-3));
+    if (s.setup && s.setup.errors) log.push(...s.setup.errors);
+    setupLog.textContent = log.join(' · ');
+
+    setupActions.innerHTML = '';
+    if (s.setup && s.setup.needsRestart) {
+      if (s.setup.needsRestart.includes('workbuddy')) {
+        const b = el('button', 'btn', '重启 WorkBuddy');
+        b.addEventListener('click', function () { restartApp('workbuddy'); });
+        setupActions.appendChild(b);
+      }
+      if (s.setup.needsRestart.includes('qwen')) {
+        const b = el('button', 'btn', '重启千问办公');
+        b.addEventListener('click', function () { restartApp('qwen'); });
+        setupActions.appendChild(b);
+      }
+    }
+    if (!login.logged_in) {
+      const b = el('button', 'btn', login.pending ? '重新打开登录页' : '打开千问登录');
+      b.addEventListener('click', function () { openLogin(); });
+      setupActions.appendChild(b);
+      if (login.url) {
+        const a = document.createElement('a');
+        a.href = login.url;
+        a.target = '_blank';
+        a.rel = 'noreferrer';
+        a.textContent = '登录链接';
+        setupActions.appendChild(a);
+      }
+    }
+    setupRun.disabled = Boolean(s.ready || (s.setup && s.setup.running));
+  }
+
+  async function checkSetup(force = false) {
+    try {
+      const r = await fetch('/api/setup/status' + (force ? '?t=' + Date.now() : ''), { cache: 'no-store' });
+      const s = await r.json();
+      if (s.ready) {
+        if (setupManual) {
+          setupMask.hidden = false;
+          renderSetup(s);
+          return s;
+        }
+        setupDone = true;
+        setupMask.hidden = true;
+        if (setupTimer) {
+          clearInterval(setupTimer);
+          setupTimer = null;
+        }
+        return s;
+      }
+      setupMask.hidden = false;
+      renderSetup(s);
+      if (!setupTimer) setupTimer = setInterval(function () { checkSetup(); }, 2500);
+
+      if (!sessionStorage.getItem('officeBusSetupAuto') && s.setup && !s.setup.running) {
+        const canStart =
+          (s.workbuddy && s.workbuddy.installed && !s.workbuddy.running) ||
+          (s.qwen && s.qwen.installed && !s.qwen.running);
+        if (canStart) {
+          sessionStorage.setItem('officeBusSetupAuto', '1');
+          startSetup();
+        }
+      }
+      return s;
+    } catch (err) {
+      setupMask.hidden = false;
+      setupList.innerHTML = '';
+      setupLog.textContent = '无法连接本机面板服务：' + err.message;
+      return null;
+    }
+  }
+
+  async function startSetup() {
+    setupManual = false;
+    setupRun.disabled = true;
+    setupLog.textContent = '正在启动 WorkBuddy / 千问办公…';
+    try {
+      await fetch('/api/setup/run', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+    } catch (err) {
+      setupLog.textContent = '配置请求失败：' + err.message;
+    }
+    setTimeout(function () { checkSetup(true); }, 1200);
+  }
+
+  async function restartApp(app) {
+    if (!confirm('重启 ' + (app === 'workbuddy' ? 'WorkBuddy' : '千问办公') + '？未保存的任务会丢失。')) return;
+    setupLog.textContent = '正在重启…';
+    try {
+      await fetch('/api/setup/restart', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ app }) });
+    } catch (err) {
+      setupLog.textContent = '重启失败：' + err.message;
+    }
+    checkSetup(true);
+  }
+
+  async function openLogin() {
+    try {
+      const r = await fetch('/api/setup/login', { method: 'POST' });
+      const d = await r.json();
+      if (d.url) window.open(d.url, '_blank');
+      setupLog.textContent = d.url ? '已打开登录页，请完成授权。' : d.error || '正在启动登录…';
+    } catch (err) {
+      setupLog.textContent = '登录启动失败：' + err.message;
+    }
+    checkSetup(true);
+  }
+
+  setupRun.addEventListener('click', startSetup);
+  setupRefresh.addEventListener('click', function () { checkSetup(true); });
+  setupBtn.addEventListener('click', async function () {
+    setupManual = true;
+    try {
+      const r = await fetch('/api/setup/status?t=' + Date.now(), { cache: 'no-store' });
+      const s = await r.json();
+      setupMask.hidden = false;
+      renderSetup(s);
+      if (!setupTimer) setupTimer = setInterval(function () { checkSetup(); }, 2500);
+    } catch (err) {
+      setupMask.hidden = false;
+      setupLog.textContent = '无法连接本机面板服务：' + err.message;
+    }
+  });
+  setupLater.addEventListener('click', function () {
+    setupManual = false;
+    setupMask.hidden = true;
+    if (setupTimer) {
+      clearInterval(setupTimer);
+      setupTimer = null;
+    }
+    sessionStorage.setItem('officeBusSetupLater', '1');
+  });
+
+  mentionChips.addEventListener('click', function (e) {
+    const btn = e.target.closest('[data-mention]');
+    if (!btn) return;
+    const name = btn.getAttribute('data-mention');
+    const token = '@' + name + ' ';
+    const start = input.selectionStart == null ? input.value.length : input.selectionStart;
+    const end = input.selectionEnd == null ? input.value.length : input.selectionEnd;
+    const before = input.value.slice(0, start);
+    const after = input.value.slice(end);
+    const prefix = before && !/\s$/.test(before) ? ' ' : '';
+    input.value = before + prefix + token + after;
+    const pos = (before + prefix + token).length;
+    input.focus();
+    input.setSelectionRange(pos, pos);
+  });
+
+  attachBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    attachPanel.hidden = !attachPanel.hidden;
+    if (!attachPanel.hidden) pathInput.focus();
+  });
+
+  closeAttach.addEventListener('click', function () {
+    attachPanel.hidden = true;
+  });
+
+  addPath.addEventListener('click', async function () {
+    const value = pathInput.value.trim();
+    if (!value) return;
+    try {
+      const r = await fetch('/api/attach', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: value })
+      });
+      const d = await r.json();
+      if (!d.ok) throw new Error(d.error || '添加失败');
+      pendingFiles.push({ name: d.name, path: d.path, size: d.size });
+      pathInput.value = '';
+      attachPanel.hidden = true;
+      renderAttachments();
+    } catch (err) {
+      append({ type: 'system', text: '附件添加失败：' + err.message });
+    }
+  });
+
+  pathInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addPath.click();
+    }
+  });
+
+  const cbox = document.querySelector('.cbox');
+  cbox.addEventListener('dragover', function (e) {
+    e.preventDefault();
+  });
+  cbox.addEventListener('drop', function (e) {
+    e.preventDefault();
+    pendingFiles.push(...Array.from(e.dataTransfer.files || []));
+    renderAttachments();
+  });
+
+  modeBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    modeMenu.hidden = !modeMenu.hidden;
+    sessionMenu.hidden = true;
+  });
+
+  modeMenu.querySelectorAll('[data-mode]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      mode = b.getAttribute('data-mode');
+      active.mode = mode;
+      persist();
+      modeMenu.hidden = true;
+      updateHeader();
+    });
+  });
+
+  sessionBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    sessionMenu.hidden = !sessionMenu.hidden;
+    modeMenu.hidden = true;
+  });
+
+  document.addEventListener('click', function (e) {
+    sessionMenu.hidden = true;
+    modeMenu.hidden = true;
+    if (attachPanel && !attachPanel.contains(e.target) && e.target !== attachBtn) attachPanel.hidden = true;
+    if (memberPanel && !memberPanel.contains(e.target) && e.target !== document.getElementById('members')) memberPanel.hidden = true;
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      sessionMenu.hidden = true;
+      modeMenu.hidden = true;
+      attachPanel.hidden = true;
+      memberPanel.hidden = true;
+      pendingRemoval = null;
+      confirmMask.hidden = true;
+    }
+  });
+
+  document.getElementById('newChat').addEventListener('click', newConversation);
+  document.getElementById('send').addEventListener('click', function () { send(); });
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.isComposing) send();
+  });
+  document.getElementById('members').addEventListener('click', function (e) {
+    e.stopPropagation();
+    memberPanel.hidden = !memberPanel.hidden;
+    if (!memberPanel.hidden) renderMemberPanel();
+  });
+
+  closeMembers.addEventListener('click', function () {
+    memberPanel.hidden = true;
+  });
+
+  confirmCancel.addEventListener('click', function () {
+    pendingRemoval = null;
+    confirmMask.hidden = true;
+  });
+
+  confirmDetach.addEventListener('click', function () {
+    if (pendingRemoval) removeMemberFromGroup(pendingRemoval.member.id);
+    pendingRemoval = null;
+    confirmMask.hidden = true;
+  });
+
+  confirmStop.addEventListener('click', async function () {
+    if (pendingRemoval) {
+      await stopTasks(pendingRemoval.tasks);
+      removeMemberFromGroup(pendingRemoval.member.id);
+    }
+    pendingRemoval = null;
+    confirmMask.hidden = true;
+  });
+
+  addMember.addEventListener('click', function () {
+    const name = memberName.value.trim();
+    const role = memberRole.value.trim() || '成员';
+    if (!name) return;
+    const ok = addMemberToGroup({
+      id: 'custom-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 5),
+      name: name.slice(0, 20),
+      role: role.slice(0, 30),
+      kind: 'custom'
+    });
+    if (ok) {
+      memberName.value = '';
+      memberRole.value = '';
+    }
+  });
+
+  [memberName, memberRole].forEach(function (node) {
+    node.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addMember.click();
+      }
+    });
+  });
+
+  loadStore();
+  renderAll();
+  setTimeout(function () {
+    if (!sessionStorage.getItem('officeBusSetupLater')) checkSetup();
+  }, 600);
+</script>
+</body>
+</html>
