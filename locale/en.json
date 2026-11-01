@@ -1,6 +1,7 @@
 {
   "meta": {
-    "title": "Office Bus",
-    "description": "Run WorkBuddy and QwenWork from one DSH group chat: handoffs, approvals, artifacts and a live work panel."
+    "title": "BotCrew",
+    "description": "Runs local WorkBuddy and QwenWork from one DSH group chat, with a member panel, per-member permissions, artifacts and a live work panel."
   }
 }
+

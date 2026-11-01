@@ -22,7 +22,7 @@ const GROUP_CHAT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..',
 
 const HTML = `<!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>工位面板 · office-bus</title>
+<title>工位面板 · botcrew</title>
 <style>
   :root{--bg:#f3f0ea;--card:#fff;--line:#e7e1d6;--muted:#8d867a;--text:#24211d;--blue:#2f7cf6;--orange:#ef7a2e;--green:#2f9e6f;--amber:#b7791f}
   *{box-sizing:border-box}body{margin:0;background:radial-gradient(900px 500px at 10% 0%,#e8e2f6,#f3f0ea 60%);font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;color:var(--text)}
@@ -49,7 +49,7 @@ const HTML = `<!doctype html>
   body.embed .head{display:none}body.embed .wrap{margin:10px auto;padding:0 10px}body.embed .shot{height:150px}
   @media(max-width:760px){.grid{grid-template-columns:1fr}.shot{height:150px}}
 </style></head><body><div class="wrap">
-  <div class="head"><h1>工位面板</h1><span class="sub">office-bus · 只读观察，不代替对话</span></div>
+  <div class="head"><h1>工位面板</h1><span class="sub">botcrew · 只读观察，不代替对话</span></div>
   <div class="grid">
     <div class="card" id="wb-card">
       <div class="top"><div class="av wb"></div><div><div class="nm">WorkBuddy</div><div class="th" id="wb-th">A 对话</div></div><div class="pill" id="wb-pill">检测中</div></div>
@@ -598,3 +598,4 @@ export function startPanelServer() {
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   startPanelServer();
 }
+

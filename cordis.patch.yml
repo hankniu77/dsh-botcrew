@@ -1,15 +1,16 @@
 - insert:
-    - id: office-bus
-      name: 'dsh-office-bus'
-    - id: office-bus-mcp
+    - id: botcrew
+      name: 'dsh-botcrew'
+    - id: botcrew-mcp
       name: '@deepseek-ai/dsh-mcp-client'
       config:
         serverName: office
         transport: stdio
         command: !!js process.execPath
         args:
-          - !!js (process.env.DSH_PROFILE_DIR || process.cwd()) + '/node_modules/dsh-office-bus/src/mcp-server.js'
+          - !!js (process.env.DSH_PROFILE_DIR || process.cwd()) + '/node_modules/dsh-botcrew/src/mcp-server.js'
         cwd: !!js process.env.DSH_PROFILE_DIR || process.cwd()
         env:
           ELECTRON_RUN_AS_NODE: '1'
         failOnStartupError: true
+

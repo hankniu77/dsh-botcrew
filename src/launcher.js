@@ -155,7 +155,8 @@ if (isMain) {
       console.log(JSON.stringify(r, null, 2));
     })
     .catch((err) => {
-      console.error(`[office-bus] ${err.message}`);
+      console.error(`[botcrew] ${err.message}`);
       process.exit(1);
     });
 }
+

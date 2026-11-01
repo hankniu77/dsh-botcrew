@@ -1,20 +1,20 @@
 <div align="center">
-  <img src="assets/icon.svg" width="76" alt="Office Bus" />
-  <h1>Office Bus</h1>
-  <p><strong>One group chat. Two desktop agents. Real work.</strong></p>
-  <p>用一个 DSH 群聊，调度本机的 WorkBuddy 与千问办公。</p>
+  <img src="assets/icon.svg" width="76" alt="BotCrew" />
+  <h1>BotCrew</h1>
+  <p><strong>One chat. Your whole bot crew.</strong></p>
+  <p>一个群聊，指挥整组桌面 Bot。</p>
 
   <p>
     <a href="https://dshmarket.com"><img alt="DSH" src="https://img.shields.io/badge/DSH-0.2.1%2B-6a4df0"></a>
-    <a href="https://github.com/hankniu77/dsh-office-bus/releases"><img alt="release" src="https://img.shields.io/github/v/release/hankniu77/dsh-office-bus?color=2f7cf6"></a>
+    <a href="https://github.com/hankniu77/dsh-botcrew/releases"><img alt="release" src="https://img.shields.io/github/v/release/hankniu77/dsh-botcrew?color=2f7cf6"></a>
     <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-MIT-2f7cf6"></a>
     <img alt="platform" src="https://img.shields.io/badge/platform-Windows-6a4df0">
   </p>
 </div>
 
-![Office Bus group chat](assets/chat.png)
+![BotCrew group chat](assets/chat.png)
 
-**Office Bus** turns **WorkBuddy** and **千问办公** into members of one DSH group chat. You write one instruction, `@WorkBuddy` extracts the source material, `@千问办公` re-lays it out, and a reviewer checks the result — while a live panel shows both desks.
+**BotCrew** turns **WorkBuddy** and **千问办公** into members of one DSH group chat. You write one instruction, `@WorkBuddy` extracts the source material, `@千问办公` re-lays it out, and a reviewer checks the result — while a live panel shows both desks.
 
 It is **local-first**: no cloud sandbox, no API keys for the office apps, no screen streaming. It drives the apps already signed in on your PC through Chromium DevTools Protocol, and exposes the same operations as `mcp__office__*` tools.
 
@@ -24,7 +24,7 @@ It is **local-first**: no cloud sandbox, no API keys for the office apps, no scr
 
 Most agent tools stop at a chat box. Real office work already lives in desktop apps: a report in WorkBuddy, a deck in 千问, a PDF on disk, an approval in a group chat.
 
-Office Bus connects those pieces:
+BotCrew connects those pieces:
 
 - **One place to command** — a group chat with members, `@` mentions and attachments.
 - **Real executors** — WorkBuddy and 千问 are operated as apps, not reimplemented as prompts.
@@ -78,29 +78,29 @@ The plugin has three parts:
 
 ### DSH Plugin Market (recommended)
 
-Open **DSH Desktop → Plugins → Discover**, search **Office Bus**, install, then open **Workspace → 对话群聊**.
+Open **DSH Desktop → Plugins → Discover**, search **BotCrew**, install, then open **Workspace → 对话群聊**.
 
 > If the listing is not live yet, use the local bundle below.
 
 ### Local bundle
 
 ```powershell
-plugin_manager install_bundle { "target": "C:/path/to/dsh-office-bus" }
+plugin_manager install_bundle { "target": "C:/path/to/dsh-botcrew" }
 ```
 
 ### GitHub Release
 
-Download the prebuilt tarball from [Releases](https://github.com/hankniu77/dsh-office-bus/releases), extract it, then install the folder with `plugin_manager`:
+Download the prebuilt tarball from [Releases](https://github.com/hankniu77/dsh-botcrew/releases), extract it, then install the folder with `plugin_manager`:
 
 ```powershell
-plugin_manager install_bundle { "target": "C:/path/to/dsh-office-bus" }
+plugin_manager install_bundle { "target": "C:/path/to/dsh-botcrew" }
 ```
 
 ### From source
 
 ```powershell
-git clone https://github.com/hankniu77/dsh-office-bus.git
-cd dsh-office-bus
+git clone https://github.com/hankniu77/dsh-botcrew.git
+cd dsh-botcrew
 ```
 
 Then install the directory through `plugin_manager` as above (no build step; the package has no npm dependencies).
@@ -109,7 +109,7 @@ Then install the directory through `plugin_manager` as above (no build step; the
 
 ## First run: automatic setup
 
-Open the group chat for the first time. Office Bus checks the machine and shows a setup card:
+Open the group chat for the first time. BotCrew checks the machine and shows a setup card:
 
 ![First-run setup](assets/setup.png)
 
@@ -198,7 +198,7 @@ The **环境** button in the header reopens the same checker at any time.
 Default config lives in the package (`config.json`); user overrides go to:
 
 ```text
-~/.dsh/office-bus/data/config.json
+~/.dsh/botcrew/data/config.json
 ```
 
 ```json
@@ -222,9 +222,9 @@ Default config lives in the package (`config.json`); user overrides go to:
 | `qwen.exe` | Path to `QwenWorkCN.exe`; auto-detected. |
 | `qwen.cli` | Path to `qoderclicn.exe`; auto-detected. |
 | `qwen.gitBashPath` | Git Bash used by the qwen CLI on Windows. |
-| `home` | Data directory, default `~/.dsh/office-bus/data`. |
+| `home` | Data directory, default `~/.dsh/botcrew/data`. |
 
-Environment override: `OFFICE_BUS_CONFIG=/path/to/config.json`.
+Environment override: `BOTCREW_CONFIG=/path/to/config.json` (legacy `OFFICE_BUS_CONFIG` is also accepted).
 
 ---
 
@@ -233,7 +233,7 @@ Environment override: `OFFICE_BUS_CONFIG=/path/to/config.json`.
 See [SECURITY.md](SECURITY.md) for the full threat model.
 
 - **Local only.** The panel listens on `127.0.0.1`; there is no cloud relay.
-- **No credentials.** Office Bus uses the apps you are already signed into; it does not read passwords.
+- **No credentials.** BotCrew uses the apps you are already signed into; it does not read passwords.
 - **Explicit restarts.** Apps running without a debug port are never killed silently.
 - **Approvals for side effects.** Publishing, paying and deleting should be gated with an approval card.
 - **Permission switches are best-effort.** Custom members can be restricted through read/write/command/external switches and the qwen permission mode; for WorkBuddy and 千问 the restriction is a task-level instruction, not a hard sandbox.
@@ -280,7 +280,7 @@ No build step and no npm runtime dependencies. The client is a prebuilt DSH modu
 ## Publishing
 
 1. Bump `version` and add a `CHANGELOG.md` entry.
-2. `npm pack` and attach the tarball to a GitHub Release (`gh release create vX.Y.Z dsh-office-bus.tgz`).
+2. `npm pack` and attach the tarball to a GitHub Release (`gh release create vX.Y.Z botcrew.tgz`).
 3. Update the registry entry at [awesome-dsh-plugin](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin) with the release `tarball:` URL.
 4. Optional: publish to npm; if the package name changes, update `lib/client.js` loader id and `cordis.patch.yml` paths.
 
@@ -292,4 +292,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Keep it local-first, include a screensho
 
 ## License
 
-MIT © Office Bus contributors
+MIT © BotCrew contributors
+

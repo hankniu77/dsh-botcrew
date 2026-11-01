@@ -1,6 +1,7 @@
 {
   "meta": {
-    "title": "Office Bus · 多助理群聊",
-    "description": "在一个 DSH 群聊里调度 WorkBuddy 与千问办公：交接、审批、产物和实时工位面板。"
+    "title": "BotCrew · Bot 小队",
+    "description": "在一个 DSH 群聊里运行本机 WorkBuddy 与千问办公，支持成员面板、逐成员权限、产物与实时工位面板。"
   }
 }
+

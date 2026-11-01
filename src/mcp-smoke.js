@@ -67,7 +67,7 @@ try {
   const init = await rpc('initialize', {
     protocolVersion: '2025-06-18',
     capabilities: {},
-    clientInfo: { name: 'office-bus-smoke', version: '0.1.0' }
+    clientInfo: { name: 'botcrew-smoke', version: '0.1.0' }
   });
   console.log('[initialize]', JSON.stringify(init.result));
 
@@ -109,3 +109,4 @@ try {
   child.stdin.end();
   setTimeout(() => child.kill(), 500);
 }
+

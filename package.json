@@ -1,7 +1,7 @@
 {
-  "name": "dsh-office-bus",
-  "version": "0.1.0",
-  "description": "Office Bus — drive WorkBuddy and QwenWork office assistants from one DSH group chat, with handoff, approvals, artifacts and a right-side work panel.",
+  "name": "dsh-botcrew",
+  "version": "0.1.1",
+  "description": "BotCrew — run WorkBuddy and QwenWork from one DSH group chat, with members, permissions, artifacts and a live work panel.",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -31,6 +31,8 @@
     "dsh-plugin",
     "deepseek",
     "harness",
+    "botcrew",
+    "bot",
     "workbuddy",
     "qwen",
     "office",
@@ -39,14 +41,14 @@
     "mcp"
   ],
   "license": "MIT",
-  "author": "Office Bus contributors",
+  "author": "BotCrew contributors",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hankniu77/dsh-office-bus.git"
+    "url": "git+https://github.com/hankniu77/dsh-botcrew.git"
   },
-  "homepage": "https://github.com/hankniu77/dsh-office-bus#readme",
+  "homepage": "https://github.com/hankniu77/dsh-botcrew#readme",
   "bugs": {
-    "url": "https://github.com/hankniu77/dsh-office-bus/issues"
+    "url": "https://github.com/hankniu77/dsh-botcrew/issues"
   },
   "publishConfig": {
     "access": "public"
@@ -68,3 +70,4 @@
     }
   }
 }
+

@@ -1,6 +1,6 @@
 # Security
 
-Office Bus automates desktop applications that are already signed in on your PC. It is not a sandbox and it does not protect you from a malicious instruction.
+BotCrew automates desktop applications that are already signed in on your PC. It is not a sandbox and it does not protect you from a malicious instruction.
 
 ## What it does
 
@@ -24,3 +24,4 @@ Office Bus automates desktop applications that are already signed in on your PC.
 ## Reporting
 
 If you find a vulnerability, please open a private security advisory or contact the maintainer rather than filing a public issue with exploit details.
+

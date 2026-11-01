@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for trying Office Bus.
+Thanks for trying BotCrew.
 
 ## Development
 
@@ -29,3 +29,4 @@ Include:
 - WorkBuddy / 千问 versions;
 - the failing tool name and `task_id` if available;
 - whether the ports `:9331` and `:9444` are reachable.
+

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.1
+
+- Renamed the project from Office Bus to **BotCrew**.
+- Package, client loader id, bundle patch, repository and release assets renamed to `dsh-botcrew` / `botcrew`.
+- Data directory moved to `~/.dsh/botcrew`.
+- Screenshots, locale metadata, README and market entry refreshed.
+
 ## 0.1.0
 
 - Initial DSH bundle: Host panel service, Client group chat, MCP engine.

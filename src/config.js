@@ -61,7 +61,7 @@ function findGitBash() {
   ]);
 }
 
-const HOME = path.join(os.homedir(), '.dsh', 'office-bus', 'data');
+const HOME = path.join(os.homedir(), '.dsh', 'botcrew', 'data');
 const QWEN_CLI = findQwenCli();
 
 const DEFAULTS = {
@@ -108,8 +108,9 @@ function deepMerge(base, extra) {
 }
 
 export function loadConfig() {
-  const userConfig = path.join(os.homedir(), '.dsh', 'office-bus', 'data', 'config.json');
+  const userConfig = path.join(os.homedir(), '.dsh', 'botcrew', 'data', 'config.json');
   const file =
+    process.env.BOTCREW_CONFIG ||
     process.env.OFFICE_BUS_CONFIG ||
     (fs.existsSync(userConfig) ? userConfig : path.join(ROOT, 'config.json'));
   let user = {};
@@ -124,3 +125,4 @@ export function loadConfig() {
   cfg.configFile = file;
   return cfg;
 }
+

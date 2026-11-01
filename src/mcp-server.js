@@ -11,7 +11,7 @@ const store = new Store(cfg.home);
 const adapter = new WorkBuddyAdapter(cfg, store);
 const qwenUI = new QwenUI(cfg);
 
-const VERSION = '0.1.0';
+const VERSION = '0.1.1';
 
 const TOOLS = [
   {
@@ -256,7 +256,7 @@ const TOOLS = [
 ];
 
 function log(...args) {
-  process.stderr.write(`[office-bus] ${args.join(' ')}\n`);
+  process.stderr.write(`[botcrew] ${args.join(' ')}\n`);
 }
 
 function sendMessage(msg) {
@@ -380,7 +380,7 @@ async function handleRequest(msg) {
     reply(id, {
       protocolVersion: params?.protocolVersion || '2025-06-18',
       capabilities: { tools: { listChanged: false } },
-      serverInfo: { name: 'office-bus', version: VERSION },
+      serverInfo: { name: 'botcrew', version: VERSION },
       instructions:
         'Use office_* tools to operate the local WorkBuddy desktop app. Prefer office_send mode=draft when the message would send/publish/pay; ask the human, then send.'
     });
@@ -455,3 +455,4 @@ main().catch((err) => {
   log(`fatal: ${err.stack || err.message}`);
   process.exit(1);
 });
+
