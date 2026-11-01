@@ -28,7 +28,7 @@ Office Bus connects those pieces:
 
 - **One place to command** — a group chat with members, `@` mentions and attachments.
 - **Real executors** — WorkBuddy and 千问 are operated as apps, not reimplemented as prompts.
-- **Handoff, not copy-paste** — the output of one member becomes the input of the next.
+- **Work stays in the thread** — task state, files and answers sit next to the instruction instead of being copy-pasted.
 - **Human approval stays human** — publishing, paying and deleting can be gated behind approval cards.
 
 ---
@@ -39,7 +39,7 @@ Office Bus connects those pieces:
 |---|---|
 | 🧠 **Multi-agent group chat** | Chief, WorkBuddy, 千问办公 and custom members in one thread. |
 | 🖥️ **Real desktop control** | WorkBuddy `:9331` and 千问 `:9444` over CDP; qoder CLI for custom members. |
-| 🔁 **Built-in handoff** | `Chief → WorkBuddy → 千问办公 → Reviewer` with task state and artifacts. |
+| 🔁 **One thread, multiple agents** | Assign WorkBuddy, 千问办公 and reviewers in the same thread; outputs stay next to the task. |
 | 🧑‍💻 **Custom members** | Name + role, executed for real by the qwen CLI. Up to 10 members. |
 | 📎 **Files in / out** | Paste a path, drag a file, or upload; artifacts come back as cards. |
 | 🛂 **Approvals** | `office_request_approval` / `office_resolve_approval`; pending items surface in the panel. |
