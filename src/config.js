@@ -58,13 +58,16 @@ function findQwenCli() {
       firstExisting([
         '/Applications/QwenWorkCN.app/Contents/Resources/bin/qoderclicn',
         '/Applications/QwenWork.app/Contents/Resources/bin/qoderclicn',
+        '/Applications/千问办公.app/Contents/Resources/bin/qoderclicn',
         path.join(os.homedir(), 'Applications', 'QwenWorkCN.app', 'Contents', 'Resources', 'bin', 'qoderclicn'),
         path.join(os.homedir(), 'Applications', 'QwenWork.app', 'Contents', 'Resources', 'bin', 'qoderclicn'),
+        path.join(os.homedir(), 'Applications', '千问办公.app', 'Contents', 'Resources', 'bin', 'qoderclicn'),
         '/usr/local/bin/qoderclicn',
         '/opt/homebrew/bin/qoderclicn'
       ]) ||
       findNamed('/Applications/QwenWorkCN.app/Contents', 'qoderclicn') ||
-      findNamed('/Applications/QwenWork.app/Contents', 'qoderclicn')
+      findNamed('/Applications/QwenWork.app/Contents', 'qoderclicn') ||
+      findNamed('/Applications/千问办公.app/Contents', 'qoderclicn')
     );
   }
   const roots = [
@@ -93,8 +96,10 @@ function findQwenExe(cli) {
     return firstExisting([
       '/Applications/QwenWorkCN.app/Contents/MacOS/QwenWorkCN',
       '/Applications/QwenWork.app/Contents/MacOS/QwenWork',
+      '/Applications/千问办公.app/Contents/MacOS/千问办公',
       path.join(os.homedir(), 'Applications', 'QwenWorkCN.app', 'Contents', 'MacOS', 'QwenWorkCN'),
-      path.join(os.homedir(), 'Applications', 'QwenWork.app', 'Contents', 'MacOS', 'QwenWork')
+      path.join(os.homedir(), 'Applications', 'QwenWork.app', 'Contents', 'MacOS', 'QwenWork'),
+      path.join(os.homedir(), 'Applications', '千问办公.app', 'Contents', 'MacOS', '千问办公')
     ]);
   }
   if (!cli) return '';

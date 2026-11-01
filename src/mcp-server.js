@@ -11,7 +11,7 @@ const store = new Store(cfg.home);
 const adapter = new WorkBuddyAdapter(cfg, store);
 const qwenUI = new QwenUI(cfg);
 
-const VERSION = '0.1.2';
+const VERSION = '0.1.3';
 
 const TOOLS = [
   {

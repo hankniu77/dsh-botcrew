@@ -20,7 +20,7 @@ function systemExe(name) {
 function processNames(name) {
   const base = path.basename(String(name || '')).replace(/\.exe$/i, '');
   const names = [base];
-  if (base === 'QwenWorkCN') names.push('QwenWork');
+  if (base === 'QwenWorkCN') names.push('QwenWork', '千问办公');
   return names.filter(Boolean);
 }
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3
+
+- Added macOS candidates for the Chinese-named `千问办公.app` bundle and process.
+- Final macOS path/process polish.
+
 ## 0.1.2
 
 - macOS support: app paths under `/Applications`, process detection with `pgrep`, launch/restart with `pkill`, and `open` for browser login.
