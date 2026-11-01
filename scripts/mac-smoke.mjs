@@ -4,8 +4,6 @@ import path from 'node:path';
 import { spawn, execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import assert from 'node:assert/strict';
-import { loadConfig } from '../src/config.js';
-import { isProcessRunning } from '../src/launcher.js';
 
 if (process.platform !== 'darwin') {
   console.log('mac-smoke: skipped (not macOS)');
@@ -31,6 +29,8 @@ try {
   fs.copyFileSync('/bin/sleep', dummy);
   fs.chmodSync(dummy, 0o755);
 
+  const { loadConfig } = await import('../src/config.js');
+  const { isProcessRunning } = await import('../src/launcher.js');
   const cfg = loadConfig();
   assert.equal(cfg.workbuddyExe, workbuddy);
   assert.equal(cfg.qwen.exe, qwenExe);
