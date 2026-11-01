@@ -6,7 +6,7 @@
 
   <p>
     <a href="https://dshmarket.com"><img alt="DSH" src="https://img.shields.io/badge/DSH-0.2.1%2B-6a4df0"></a>
-    <a href="https://www.npmjs.com/package/dsh-office-bus"><img alt="npm" src="https://img.shields.io/npm/v/dsh-office-bus?color=2f7cf6"></a>
+    <a href="https://github.com/hankniu77/dsh-office-bus/releases"><img alt="release" src="https://img.shields.io/github/v/release/hankniu77/dsh-office-bus?color=2f7cf6"></a>
     <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-MIT-2f7cf6"></a>
     <img alt="platform" src="https://img.shields.io/badge/platform-Windows-6a4df0">
   </p>
@@ -88,10 +88,18 @@ Open **DSH Desktop → Plugins → Discover**, search **Office Bus**, install, t
 plugin_manager install_bundle { "target": "C:/path/to/dsh-office-bus" }
 ```
 
+### GitHub Release
+
+Download the prebuilt tarball from [Releases](https://github.com/hankniu77/dsh-office-bus/releases), extract it, then install the folder with `plugin_manager`:
+
+```powershell
+plugin_manager install_bundle { "target": "C:/path/to/dsh-office-bus" }
+```
+
 ### From source
 
 ```powershell
-git clone https://github.com/<your-name>/dsh-office-bus.git
+git clone https://github.com/hankniu77/dsh-office-bus.git
 cd dsh-office-bus
 ```
 
@@ -271,10 +279,10 @@ No build step and no npm runtime dependencies. The client is a prebuilt DSH modu
 
 ## Publishing
 
-1. Change `name` / `version` / `repository` in `package.json`.
-2. If the package name changes, update `lib/client.js` loader id and `cordis.patch.yml` paths.
-3. `npm publish --access public`.
-4. Add the plugin to [awesome-dsh-plugin](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin); the market indexes it automatically.
+1. Bump `version` and add a `CHANGELOG.md` entry.
+2. `npm pack` and attach the tarball to a GitHub Release (`gh release create vX.Y.Z dsh-office-bus.tgz`).
+3. Update the registry entry at [awesome-dsh-plugin](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin) with the release `tarball:` URL.
+4. Optional: publish to npm; if the package name changes, update `lib/client.js` loader id and `cordis.patch.yml` paths.
 
 ---
 

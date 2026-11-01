@@ -40,6 +40,14 @@
   ],
   "license": "MIT",
   "author": "Office Bus contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hankniu77/dsh-office-bus.git"
+  },
+  "homepage": "https://github.com/hankniu77/dsh-office-bus#readme",
+  "bugs": {
+    "url": "https://github.com/hankniu77/dsh-office-bus/issues"
+  },
   "publishConfig": {
     "access": "public"
   },
